@@ -7,12 +7,11 @@ import (
 	"time"
 )
 
-const Mbytes = float64(1024 * 1024 / 8)
-
+// linux command: netstat -i
 type NetworkCollector struct {
-	name string
+	name  string
 	value *network.Stats
-	ts time.Time
+	ts    time.Time
 }
 
 func NewNetworkCollector(name string) (*NetworkCollector, error) {
@@ -24,14 +23,14 @@ func NewNetworkCollector(name string) (*NetworkCollector, error) {
 	}
 
 	return &NetworkCollector{
-		name: name,
+		name:  name,
 		value: value,
-		ts: ts,
+		ts:    ts,
 	}, nil
 }
 
 func collect(name string) *network.Stats {
-	vals, _:= network.Get()
+	vals, _ := network.Get()
 	for _, val := range vals {
 		if strings.HasPrefix(val.Name, name) {
 			return &val
@@ -45,9 +44,9 @@ func (c *NetworkCollector) Collect() map[string]float64 {
 	value := collect(c.name)
 	ts := time.Now()
 
-	res := map[string]float64 {
-		"IMbps": float64(value.RxBytes - c.value.RxBytes) / float64(ts.Sub(c.ts) / time.Second) / Mbytes,
-		"OMbps": float64(value.TxBytes - c.value.TxBytes) / float64(ts.Sub(c.ts) / time.Second) / Mbytes,
+	res := map[string]float64{
+		"IMbps": float64(value.RxBytes-c.value.RxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
+		"OMbps": float64(value.TxBytes-c.value.TxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
 	}
 
 	c.value = value

@@ -2,6 +2,7 @@ package collector
 
 import "github.com/mackerelio/go-osstat/cpu"
 
+// linux command: top
 type CPUCollector struct {
 	value *cpu.Stats
 }
