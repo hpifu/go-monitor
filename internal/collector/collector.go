@@ -58,8 +58,7 @@ func NewCollector(name string, params []interface{}) (Collector, error) {
 		if _, ok := params[0].(string); !ok {
 			return nil, fmt.Errorf("params should be string, [%v]", params[0])
 		}
-		//return NewIOPSCollector(params[0].(string))
-		return NewDiskCollector()
+		return NewIOPSCollector(params[0].(string))
 	}
 
 	return nil, fmt.Errorf("no such collector")
