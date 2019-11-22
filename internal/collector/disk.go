@@ -2,6 +2,7 @@ package collector
 
 import "syscall"
 
+// linux command: df -h
 type DiskCollector struct{}
 
 func NewDiskCollector() (*DiskCollector, error) {
