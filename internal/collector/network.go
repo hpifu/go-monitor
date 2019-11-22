@@ -1,29 +1,57 @@
 package collector
 
 import (
-	"github.com/mackerelio/go-osstat/memory"
+	"fmt"
 	"github.com/mackerelio/go-osstat/network"
+	"strings"
+	"time"
 )
 
+const Mbytes = float64(1024 * 1024 / 8)
+
 type NetworkCollector struct {
-	value *memory.Stats
+	name string
+	value *network.Stats
+	ts time.Time
 }
 
-func NewNetworkCollector() (*NetworkCollector, error) {
-	value, err := memory.Get()
-	if err != nil {
-		return nil, err
+func NewNetworkCollector(name string) (*NetworkCollector, error) {
+	value := collect(name)
+	ts := time.Now()
+
+	if value == nil {
+		return nil, fmt.Errorf("network not found, name: [%v]", name)
 	}
 
 	return &NetworkCollector{
+		name: name,
 		value: value,
+		ts: ts,
 	}, nil
 }
 
-func (c *NetworkCollector) Collect() map[string]float64 {
-	value, _:= network.Get()
-
-	return map[string]float64 {
-		//"total": float64(value.),
+func collect(name string) *network.Stats {
+	vals, _:= network.Get()
+	for _, val := range vals {
+		if strings.HasPrefix(val.Name, name) {
+			return &val
+		}
 	}
+
+	return nil
+}
+
+func (c *NetworkCollector) Collect() map[string]float64 {
+	value := collect(c.name)
+	ts := time.Now()
+
+	res := map[string]float64 {
+		"IMbps": float64(value.RxBytes - c.value.RxBytes) / float64(ts.Sub(c.ts) / time.Second) / Mbytes,
+		"OMbps": float64(value.TxBytes - c.value.TxBytes) / float64(ts.Sub(c.ts) / time.Second) / Mbytes,
+	}
+
+	c.value = value
+	c.ts = ts
+
+	return res
 }

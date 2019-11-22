@@ -28,7 +28,7 @@ func (c *CPUCollector) Collect() map[string]float64 {
 
 	return map[string]float64{
 		"user": user / total * 100,
-		"collector": system / total * 100,
+		"system": system / total * 100,
 		"idel": idel / total * 100,
 	}
 }

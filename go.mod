@@ -29,4 +29,5 @@ replace (
 require (
 	github.com/influxdata/influxdb1-client v0.0.0-20190809212627-fc22c7df067e
 	github.com/mackerelio/go-osstat v0.0.0-20191011055430-af968620273d
+	github.com/smartystreets/goconvey v1.6.4
 )
