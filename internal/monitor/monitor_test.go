@@ -1,20 +1,23 @@
 package monitor
 
 import (
+	"github.com/hpifu/go-monitor/internal/collector"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+	"time"
 )
 
 func TestMonitor(t *testing.T) {
 	Convey("test monitor", t, func() {
 		m, err := NewMonitor("http://localhost:8086", "mydb")
 		So(err, ShouldBeNil)
-		So(m.Save(&Mertic{
-			Table: "testtbl",
-			Keys: map[string]string{
-				"field1": "key1",
-			},
-			Value: 12.3,
-		}), ShouldBeNil)
+
+		cpuCollector, _ := collector.NewCPUCollector()
+		memCollector, _ := collector.NewMemoryCollector()
+		m.AddCollector(cpuCollector, "cpu", time.Second)
+		m.AddCollector(memCollector, "mem", time.Second)
+		So(m.Monitor(), ShouldBeNil)
+		time.Sleep(13 * time.Second)
+		m.Stop()
 	})
 }
