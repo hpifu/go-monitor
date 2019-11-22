@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -52,8 +53,8 @@ func (c *IOPSCollector) Collect() []*Metric {
 	ts := time.Now()
 
 	res := map[string]interface{}{
-		"RMbps": float64(value.ReadsCompleted-c.value.ReadsCompleted) / float64(ts.Sub(c.ts)/time.Second),
-		"WMbps": float64(value.WritesCompleted-c.value.WritesCompleted) / float64(ts.Sub(c.ts)/time.Second),
+		"rps": math.Round(float64(value.ReadsCompleted-c.value.ReadsCompleted)/float64(ts.Sub(c.ts)/time.Second)*100) / 100,
+		"wps": math.Round(float64(value.WritesCompleted-c.value.WritesCompleted)/float64(ts.Sub(c.ts)/time.Second)*100) / 100,
 	}
 
 	c.value = value

@@ -2,6 +2,7 @@ package collector
 
 import (
 	"github.com/mackerelio/go-osstat/memory"
+	"math"
 	"time"
 )
 
@@ -25,10 +26,10 @@ func (c *MemoryCollector) Collect() []*Metric {
 		{
 			Keys: c.keys,
 			Vals: map[string]interface{}{
-				"total":  float64(value.Total) / GBytes,
-				"free":   float64(value.Free) / GBytes,
-				"used":   float64(value.Used) / GBytes,
-				"cached": float64(value.Cached) / GBytes,
+				"total":  math.Round(float64(value.Total)/GBytes*100) / 100,
+				"free":   math.Round(float64(value.Free)/GBytes*100) / 100,
+				"used":   math.Round(float64(value.Used)/GBytes*100) / 100,
+				"cached": math.Round(float64(value.Cached)/GBytes*100) / 100,
 			},
 			Timestamp: time.Now(),
 		},

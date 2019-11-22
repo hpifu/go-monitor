@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"math"
 	"syscall"
 	"time"
 )
@@ -26,9 +27,9 @@ func (c *DiskCollector) Collect() []*Metric {
 		{
 			Keys: c.keys,
 			Vals: map[string]interface{}{
-				"total": float64(stats.Blocks*uint64(stats.Bsize)) / GBytes,
-				"free":  float64(stats.Bfree*uint64(stats.Bsize)) / GBytes,
-				"used":  float64((stats.Blocks-stats.Bfree)*uint64(stats.Bsize)) / GBytes,
+				"total": math.Round(float64(stats.Blocks*uint64(stats.Bsize))/GBytes*100) / 100,
+				"free":  math.Round(float64(stats.Bfree*uint64(stats.Bsize))/GBytes*100) / 100,
+				"used":  math.Round(float64((stats.Blocks-stats.Bfree)*uint64(stats.Bsize))/GBytes*100) / 100,
 			},
 			Timestamp: time.Now(),
 		},

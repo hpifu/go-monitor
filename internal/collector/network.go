@@ -3,6 +3,7 @@ package collector
 import (
 	"fmt"
 	"github.com/mackerelio/go-osstat/network"
+	"math"
 	"strings"
 	"time"
 )
@@ -50,8 +51,8 @@ func (c *NetworkCollector) Collect() []*Metric {
 	ts := time.Now()
 
 	res := map[string]interface{}{
-		"IMbps": float64(value.RxBytes-c.value.RxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
-		"OMbps": float64(value.TxBytes-c.value.TxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
+		"imbps": math.Round(float64(value.RxBytes-c.value.RxBytes)/float64(ts.Sub(c.ts)/time.Second)/Mbytes*100) / 100,
+		"ombps": math.Round(float64(value.TxBytes-c.value.TxBytes)/float64(ts.Sub(c.ts)/time.Second)/Mbytes*100) / 100,
 	}
 
 	c.value = value

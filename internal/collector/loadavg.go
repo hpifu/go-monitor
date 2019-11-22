@@ -2,6 +2,7 @@ package collector
 
 import (
 	"github.com/mackerelio/go-osstat/loadavg"
+	"math"
 	"time"
 )
 
@@ -25,9 +26,9 @@ func (c *LoadAvgCollector) Collect() []*Metric {
 		{
 			Keys: c.keys,
 			Vals: map[string]interface{}{
-				"load1m":  value.Loadavg1,
-				"load5m":  value.Loadavg5,
-				"load15m": value.Loadavg15,
+				"load1m":  math.Round(value.Loadavg1*100) / 100,
+				"load5m":  math.Round(value.Loadavg5*100) / 100,
+				"load15m": math.Round(value.Loadavg15*100) / 100,
 			},
 			Timestamp: time.Now(),
 		},

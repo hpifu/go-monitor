@@ -2,6 +2,7 @@ package collector
 
 import (
 	"github.com/mackerelio/go-osstat/cpu"
+	"math"
 	"time"
 )
 
@@ -30,7 +31,7 @@ func (c *CPUCollector) Collect() []*Metric {
 	total := float64(value.Total - c.value.Total)
 	user := float64(value.User - c.value.User)
 	system := float64(value.System - c.value.System)
-	idel := float64(value.Idle - c.value.Idle)
+	idle := float64(value.Idle - c.value.Idle)
 
 	c.value = value
 
@@ -38,9 +39,9 @@ func (c *CPUCollector) Collect() []*Metric {
 		{
 			Keys: c.keys,
 			Vals: map[string]interface{}{
-				"user":   user / total * 100,
-				"system": system / total * 100,
-				"idel":   idel / total * 100,
+				"user":   math.Round(user/total*10000) / 100,
+				"system": math.Round(system/total*10000) / 100,
+				"idle":   math.Round(idle/total*10000) / 100,
 			},
 			Timestamp: time.Now(),
 		},
