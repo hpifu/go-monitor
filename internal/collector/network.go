@@ -12,6 +12,8 @@ type NetworkCollector struct {
 	name  string
 	value *network.Stats
 	ts    time.Time
+
+	keys map[string]string
 }
 
 func NewNetworkCollector(name string) (*NetworkCollector, error) {
@@ -26,6 +28,9 @@ func NewNetworkCollector(name string) (*NetworkCollector, error) {
 		name:  name,
 		value: value,
 		ts:    ts,
+		keys: map[string]string{
+			"host": Hostname(),
+		},
 	}, nil
 }
 
@@ -40,11 +45,11 @@ func collectNetwork(name string) *network.Stats {
 	return nil
 }
 
-func (c *NetworkCollector) Collect() map[string]float64 {
+func (c *NetworkCollector) Collect() []*Metric {
 	value := collectNetwork(c.name)
 	ts := time.Now()
 
-	res := map[string]float64{
+	res := map[string]interface{}{
 		"IMbps": float64(value.RxBytes-c.value.RxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
 		"OMbps": float64(value.TxBytes-c.value.TxBytes) / float64(ts.Sub(c.ts)/time.Second) / Mbytes,
 	}
@@ -52,5 +57,11 @@ func (c *NetworkCollector) Collect() map[string]float64 {
 	c.value = value
 	c.ts = ts
 
-	return res
+	return []*Metric{
+		{
+			Keys:      c.keys,
+			Vals:      res,
+			Timestamp: time.Now(),
+		},
+	}
 }

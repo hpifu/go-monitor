@@ -1,25 +1,17 @@
 package monitor
 
 import (
+	"github.com/hpifu/go-monitor/internal/collector"
 	_ "github.com/influxdata/influxdb1-client" // this is important because of the bug in go mod
 	influxdb "github.com/influxdata/influxdb1-client/v2"
 )
 
-type Mertic struct {
-	Table string
-	Keys  map[string]string
-	Value float64
-}
-
 type Monitor struct {
 	client influxdb.Client
+	dbname string
 }
 
-type Collector interface {
-	Collect() map[string]float64
-}
-
-func NewMonitor(addr string) (*Monitor, error) {
+func NewMonitor(addr string, dbname string) (*Monitor, error) {
 	c, err := influxdb.NewHTTPClient(influxdb.HTTPConfig{
 		Addr: addr,
 	})
@@ -30,21 +22,24 @@ func NewMonitor(addr string) (*Monitor, error) {
 
 	return &Monitor{
 		client: c,
+		dbname: dbname,
 	}, nil
 }
 
-func (m *Monitor) Save(mertic *Mertic) error {
+func (m *Monitor) AddCollector(c collector.Collector) {
+
+}
+
+func (m *Monitor) Save(metric *collector.Metric) error {
 	bps, err := influxdb.NewBatchPoints(influxdb.BatchPointsConfig{
-		Database:  "mydb",
+		Database:  m.dbname,
 		Precision: "s",
 	})
 	if err != nil {
 		return err
 	}
 
-	point, err := influxdb.NewPoint(mertic.Table, mertic.Keys, map[string]interface{}{
-		"value": mertic.Value,
-	})
+	point, err := influxdb.NewPoint("mydb", metric.Keys, metric.Vals, metric.Timestamp)
 
 	if err != nil {
 		return err

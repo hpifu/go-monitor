@@ -1,10 +1,14 @@
 package collector
 
-import "github.com/mackerelio/go-osstat/cpu"
+import (
+	"github.com/mackerelio/go-osstat/cpu"
+	"time"
+)
 
 // linux command: top
 type CPUCollector struct {
 	value *cpu.Stats
+	keys  map[string]string
 }
 
 func NewCPUCollector() (*CPUCollector, error) {
@@ -14,11 +18,14 @@ func NewCPUCollector() (*CPUCollector, error) {
 	}
 
 	return &CPUCollector{
+		keys: map[string]string{
+			"host": Hostname(),
+		},
 		value: value,
 	}, nil
 }
 
-func (c *CPUCollector) Collect() map[string]float64 {
+func (c *CPUCollector) Collect() []*Metric {
 	value, _ := cpu.Get()
 	total := float64(value.Total - c.value.Total)
 	user := float64(value.User - c.value.User)
@@ -27,9 +34,15 @@ func (c *CPUCollector) Collect() map[string]float64 {
 
 	c.value = value
 
-	return map[string]float64{
-		"user": user / total * 100,
-		"system": system / total * 100,
-		"idel": idel / total * 100,
+	return []*Metric{
+		{
+			Keys: c.keys,
+			Vals: map[string]interface{}{
+				"user":   user / total * 100,
+				"system": system / total * 100,
+				"idel":   idel / total * 100,
+			},
+			Timestamp: time.Now(),
+		},
 	}
 }

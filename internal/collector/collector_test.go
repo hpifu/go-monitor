@@ -14,8 +14,9 @@ func TestCPUCollector(t *testing.T) {
 		So(err, ShouldBeNil)
 		for i := 0; i < 10; i++ {
 			time.Sleep(time.Second)
-			v := c.Collect()
-			fmt.Println(v)
+			for _, m := range c.Collect() {
+				fmt.Println(m)
+			}
 		}
 	})
 }
@@ -24,8 +25,9 @@ func TestMemoryCollector(t *testing.T) {
 	Convey("test memory collector", t, func() {
 		c, err := NewMemoryCollector()
 		So(err, ShouldBeNil)
-		v := c.Collect()
-		fmt.Println(v)
+		for _, m := range c.Collect() {
+			fmt.Println(m)
+		}
 	})
 }
 
@@ -35,8 +37,9 @@ func TestNetworkCollector(t *testing.T) {
 		So(err, ShouldBeNil)
 		for i := 0; i < 10; i++ {
 			time.Sleep(time.Second)
-			v := c.Collect()
-			fmt.Println(v)
+			for _, m := range c.Collect() {
+				fmt.Println(m)
+			}
 		}
 	})
 }
@@ -45,8 +48,9 @@ func TestLoadAvgCollector(t *testing.T) {
 	Convey("test loadavg collector", t, func() {
 		c, err := NewLoadAvgCollector()
 		So(err, ShouldBeNil)
-		v := c.Collect()
-		fmt.Println(v)
+		for _, m := range c.Collect() {
+			fmt.Println(m)
+		}
 	})
 }
 
@@ -54,8 +58,9 @@ func TestDiskCollector(t *testing.T) {
 	Convey("test disk collector", t, func() {
 		c, err := NewDiskCollector()
 		So(err, ShouldBeNil)
-		v := c.Collect()
-		fmt.Println(v)
+		for _, m := range c.Collect() {
+			fmt.Println(m)
+		}
 	})
 }
 
@@ -65,8 +70,9 @@ func TestIOPSCollector(t *testing.T) {
 		So(err, ShouldBeNil)
 		for i := 0; i < 10; i++ {
 			time.Sleep(time.Second)
-			v := c.Collect()
-			fmt.Println(v)
+			for _, m := range c.Collect() {
+				fmt.Println(m)
+			}
 		}
 	})
 }

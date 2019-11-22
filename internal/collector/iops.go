@@ -13,6 +13,8 @@ type IOPSCollector struct {
 	name  string
 	value *disk.Stats
 	ts    time.Time
+
+	keys map[string]string
 }
 
 func NewIOPSCollector(name string) (*IOPSCollector, error) {
@@ -27,6 +29,10 @@ func NewIOPSCollector(name string) (*IOPSCollector, error) {
 		name:  name,
 		value: value,
 		ts:    ts,
+
+		keys: map[string]string{
+			"host": Hostname(),
+		},
 	}, nil
 }
 
@@ -41,11 +47,11 @@ func collectIOPS(name string) *disk.Stats {
 	return nil
 }
 
-func (c *IOPSCollector) Collect() map[string]float64 {
+func (c *IOPSCollector) Collect() []*Metric {
 	value := collectIOPS(c.name)
 	ts := time.Now()
 
-	res := map[string]float64{
+	res := map[string]interface{}{
 		"RMbps": float64(value.ReadsCompleted-c.value.ReadsCompleted) / float64(ts.Sub(c.ts)/time.Second),
 		"WMbps": float64(value.WritesCompleted-c.value.WritesCompleted) / float64(ts.Sub(c.ts)/time.Second),
 	}
@@ -53,5 +59,11 @@ func (c *IOPSCollector) Collect() map[string]float64 {
 	c.value = value
 	c.ts = ts
 
-	return res
+	return []*Metric{
+		{
+			Keys:      c.keys,
+			Vals:      res,
+			Timestamp: time.Now(),
+		},
+	}
 }
