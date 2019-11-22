@@ -1,3 +1,49 @@
 {
-
+  "monitor": {
+    "address": "http://localhost:8086",
+    "database": "mydb",
+    "batch": 5,
+    "retry": 3
+  },
+  "collector": [{
+    "class": "CPUCollector",
+    "table": "cpu",
+    "interval": "30s"
+  }, {
+    "class": "MemoryCollector",
+    "table": "mem",
+    "interval": "30s"
+  }, {
+    "class": "NetworkCollector",
+    "params": ["en"],
+    "table": "net",
+    "interval": "30s"
+  }, {
+    "class": "LoadAvgCollector",
+    "table": "load",
+    "interval": "30s"
+  }, {
+    "class": "DiskCollector",
+    "table": "disk",
+    "interval": "30s"
+  }, {
+    "class": "IOPSCollector",
+    "params": ["sda"],
+    "table": "disk",
+    "interval": "30s"
+  }],
+  "logger": {
+    "infoLog": {
+      "filename": "log/monitor.info",
+      "maxAge": "24h"
+    },
+    "warnLog": {
+      "filename": "log/monitor.warn",
+      "maxAge": "24h"
+    },
+    "accessLog": {
+      "filename": "log/monitor.access",
+      "maxAge": "24h"
+    }
+  }
 }

@@ -27,7 +27,12 @@ replace (
 )
 
 require (
+	github.com/hpifu/go-kit v1.6.8
 	github.com/influxdata/influxdb1-client v0.0.0-20190809212627-fc22c7df067e
+	github.com/lestrrat-go/file-rotatelogs v2.2.0+incompatible
 	github.com/mackerelio/go-osstat v0.0.0-20191011055430-af968620273d
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
+	github.com/spf13/viper v1.5.0
+	github.com/yosuke-furukawa/json5 v0.1.1
 )

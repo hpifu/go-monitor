@@ -1,15 +1,16 @@
 package monitor
 
 import (
-	"github.com/hpifu/go-monitor/internal/collector"
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 	"time"
+
+	"github.com/hpifu/go-monitor/internal/collector"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMonitor(t *testing.T) {
 	Convey("test monitor", t, func() {
-		m, err := NewMonitor("http://localhost:8086", "mydb")
+		m, err := NewMonitor("http://localhost:8086", "monitor", 5, 3)
 		So(err, ShouldBeNil)
 
 		cpuCollector, _ := collector.NewCPUCollector()

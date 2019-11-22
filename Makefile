@@ -1,7 +1,7 @@
 binary=monitor
 dockeruser=hatlonely
 gituser=hpifu
-repository=tpl-go-http
+repository=go-monitor
 version=$(shell git describe --tags)
 
 export GOPATH=$(shell pwd)/../../../../

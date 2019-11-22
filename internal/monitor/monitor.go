@@ -2,12 +2,41 @@ package monitor
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/hpifu/go-monitor/internal/collector"
 	_ "github.com/influxdata/influxdb1-client" // this is important because of the bug in go mod
 	influxdb "github.com/influxdata/influxdb1-client/v2"
-	"sync"
-	"time"
+	"github.com/sirupsen/logrus"
 )
+
+func NewMonitor(addr string, database string, batch int, retry int) (*Monitor, error) {
+	c, err := influxdb.NewHTTPClient(influxdb.HTTPConfig{
+		Addr: addr,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if _, _, err := c.Ping(200 * time.Millisecond); err != nil {
+		return nil, err
+	}
+
+	return &Monitor{
+		client:   c,
+		database: database,
+
+		metricQueue: make(chan *metricItem, 1000),
+		stop:        false,
+
+		batch:     batch,
+		retry:     retry,
+		infoLog:   logrus.New(),
+		warnLog:   logrus.New(),
+		accessLog: logrus.New(),
+	}, nil
+}
 
 type metricItem struct {
 	table  string
@@ -15,8 +44,8 @@ type metricItem struct {
 }
 
 type Monitor struct {
-	client influxdb.Client
-	dbname string
+	client   influxdb.Client
+	database string
 
 	metricQueue chan *metricItem
 
@@ -26,31 +55,21 @@ type Monitor struct {
 
 	batch int
 	retry int
+
+	infoLog   *logrus.Logger
+	warnLog   *logrus.Logger
+	accessLog *logrus.Logger
 }
 
-func NewMonitor(addr string, dbname string) (*Monitor, error) {
-	c, err := influxdb.NewHTTPClient(influxdb.HTTPConfig{
-		Addr: addr,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &Monitor{
-		client: c,
-		dbname: dbname,
-
-		metricQueue: make(chan *metricItem, 1000),
-		stop:        false,
-
-		batch: 5,
-		retry: 3,
-	}, nil
+func (m *Monitor) SetLogger(infoLog, warnLog, accessLog *logrus.Logger) {
+	m.infoLog = infoLog
+	m.warnLog = warnLog
+	m.accessLog = accessLog
 }
 
 func (m *Monitor) AddCollector(c collector.Collector, table string, interval time.Duration) {
 	go func() {
+		m.infoLog.Infof("add collector, table: [%v], interval: [%v]", table, interval)
 		m.collectorWG.Add(1)
 		for range time.Tick(interval) {
 			for _, metric := range c.Collect() {
@@ -64,6 +83,7 @@ func (m *Monitor) AddCollector(c collector.Collector, table string, interval tim
 			}
 		}
 		m.collectorWG.Done()
+		m.infoLog.Infof("collector done")
 	}()
 }
 
@@ -73,7 +93,7 @@ func (m *Monitor) Monitor() error {
 	count := 0
 
 	bps, err = influxdb.NewBatchPoints(influxdb.BatchPointsConfig{
-		Database:  m.dbname,
+		Database:  m.database,
 		Precision: "s",
 	})
 	if err != nil {
@@ -81,6 +101,7 @@ func (m *Monitor) Monitor() error {
 	}
 
 	go func() {
+		m.infoLog.Infof("monitor start")
 		m.monitorWG.Add(1)
 		for item := range m.metricQueue {
 			fmt.Println(item.table, item.metric)
@@ -88,17 +109,21 @@ func (m *Monitor) Monitor() error {
 				item.table, item.metric.Keys, item.metric.Vals, item.metric.Timestamp,
 			)
 			if err != nil {
-				// do some log
+				m.warnLog.Warnf("new point failed. err: [%v]", err)
 				continue
 			}
 
+			m.accessLog.WithFields(logrus.Fields{
+				"table":  item.table,
+				"metric": item.metric,
+			}).Info()
 			bps.AddPoint(point)
 			count++
 
 			if count == m.batch {
 				retry := 0
 				for err = m.client.Write(bps); err != nil; {
-					// do some log
+					m.warnLog.Warnf("influxdb write failed. err: [%v], retry: [%v]", err, retry)
 					retry++
 					if retry == m.retry {
 						break
@@ -106,7 +131,7 @@ func (m *Monitor) Monitor() error {
 				}
 
 				bps, _ = influxdb.NewBatchPoints(influxdb.BatchPointsConfig{
-					Database:  m.dbname,
+					Database:  m.database,
 					Precision: "s",
 				})
 				count = 0
@@ -116,7 +141,7 @@ func (m *Monitor) Monitor() error {
 		if count != 0 {
 			retry := 0
 			for err = m.client.Write(bps); err != nil; {
-				// do some log
+				m.warnLog.Warnf("influxdb write failed. err: [%v], retry: [%v]", err, retry)
 				retry++
 				if retry == m.retry {
 					break
@@ -125,29 +150,10 @@ func (m *Monitor) Monitor() error {
 		}
 
 		m.monitorWG.Done()
+		m.infoLog.Infof("monitor done")
 	}()
 
 	return nil
-}
-
-func (m *Monitor) Save(metric *collector.Metric) error {
-	bps, err := influxdb.NewBatchPoints(influxdb.BatchPointsConfig{
-		Database:  m.dbname,
-		Precision: "s",
-	})
-	if err != nil {
-		return err
-	}
-
-	point, err := influxdb.NewPoint("mydb", metric.Keys, metric.Vals, metric.Timestamp)
-
-	if err != nil {
-		return err
-	}
-
-	bps.AddPoint(point)
-
-	return m.client.Write(bps)
 }
 
 func (m *Monitor) Stop() {
