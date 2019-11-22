@@ -15,7 +15,7 @@ type NetworkCollector struct {
 }
 
 func NewNetworkCollector(name string) (*NetworkCollector, error) {
-	value := collect(name)
+	value := collectNetwork(name)
 	ts := time.Now()
 
 	if value == nil {
@@ -29,7 +29,7 @@ func NewNetworkCollector(name string) (*NetworkCollector, error) {
 	}, nil
 }
 
-func collect(name string) *network.Stats {
+func collectNetwork(name string) *network.Stats {
 	vals, _ := network.Get()
 	for _, val := range vals {
 		if strings.HasPrefix(val.Name, name) {
@@ -41,7 +41,7 @@ func collect(name string) *network.Stats {
 }
 
 func (c *NetworkCollector) Collect() map[string]float64 {
-	value := collect(c.name)
+	value := collectNetwork(c.name)
 	ts := time.Now()
 
 	res := map[string]float64{

@@ -58,3 +58,12 @@ func TestDiskCollector(t *testing.T) {
 		fmt.Println(v)
 	})
 }
+
+func TestIOPSCollector(t *testing.T) {
+	Convey("test iops collector", t, func() {
+		c, err := NewIOPSCollector("sda")
+		So(err, ShouldBeNil)
+		v := c.Collect()
+		fmt.Println(v)
+	})
+}
