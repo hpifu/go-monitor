@@ -1,0 +1,8 @@
+vendor/
+.idea/
+output/
+test.log
+test.log.*
+log/
+docker
+.vscode/

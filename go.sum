@@ -1,0 +1,5 @@
+github.com/golang/sys v0.0.0-20190602015325-4c4f7f33c9ed/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+github.com/influxdata/influxdb1-client v0.0.0-20190809212627-fc22c7df067e h1:txQltCyjXAqVVSZDArPEhUTg35hKwVIuXwtQo7eAMNQ=
+github.com/influxdata/influxdb1-client v0.0.0-20190809212627-fc22c7df067e/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
+github.com/mackerelio/go-osstat v0.0.0-20191011055430-af968620273d h1:vMSB9DSN4dlKcPtj5BM1dLL8XoNzCKQ1Ne/R/sy0dLE=
+github.com/mackerelio/go-osstat v0.0.0-20191011055430-af968620273d/go.mod h1:1K3NeYLhMHPvzUu+ePYXtoB58wkaRpxZsGClZBJyIFw=

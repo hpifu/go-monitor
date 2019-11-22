@@ -1,4 +1,4 @@
-binary=echo
+binary=monitor
 dockeruser=hatlonely
 gituser=hpifu
 repository=tpl-go-http
