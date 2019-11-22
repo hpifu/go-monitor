@@ -46,8 +46,8 @@ func (c *IOPSCollector) Collect() map[string]float64 {
 	ts := time.Now()
 
 	res := map[string]float64{
-		"RMbps": float64(value.ReadsCompleted-c.value.ReadsCompleted) / float64(ts.Sub(c.ts)/time.Second) / KBytes,
-		"WMbps": float64(value.WritesCompleted-c.value.WritesCompleted) / float64(ts.Sub(c.ts)/time.Second) / KBytes,
+		"RMbps": float64(value.ReadsCompleted-c.value.ReadsCompleted) / float64(ts.Sub(c.ts)/time.Second),
+		"WMbps": float64(value.WritesCompleted-c.value.WritesCompleted) / float64(ts.Sub(c.ts)/time.Second),
 	}
 
 	c.value = value
