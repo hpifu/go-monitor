@@ -19,28 +19,12 @@
       "interval": "30s"
     },
     {
-      "class": "NetworkCollector",
-      "params": [
-        "en"
-      ],
-      "table": "net",
-      "interval": "30s"
-    },
-    {
       "class": "LoadAvgCollector",
       "table": "load",
       "interval": "30s"
     },
     {
       "class": "DiskCollector",
-      "table": "disk",
-      "interval": "30s"
-    },
-    {
-      "class": "IOPSCollector",
-      "params": [
-        "sda"
-      ],
       "table": "disk",
       "interval": "30s"
     }
