@@ -3,37 +3,48 @@
     "batch": 5
   },
   "reporter": {
-    "address": "http://localhost:8086",
-    "database": "mydb",
+    "address": "http://influxdb:8086",
+    "database": "monitor",
     "retry": 3
   },
-  "collector": [{
-    "class": "CPUCollector",
-    "table": "cpu",
-    "interval": "30s"
-  }, {
-    "class": "MemoryCollector",
-    "table": "mem",
-    "interval": "30s"
-  }, {
-    "class": "NetworkCollector",
-    "params": ["en"],
-    "table": "net",
-    "interval": "30s"
-  }, {
-    "class": "LoadAvgCollector",
-    "table": "load",
-    "interval": "30s"
-  }, {
-    "class": "DiskCollector",
-    "table": "disk",
-    "interval": "30s"
-  }, {
-    "class": "IOPSCollector",
-    "params": ["sda"],
-    "table": "disk",
-    "interval": "30s"
-  }],
+  "collector": [
+    {
+      "class": "CPUCollector",
+      "table": "cpu",
+      "interval": "30s"
+    },
+    {
+      "class": "MemoryCollector",
+      "table": "mem",
+      "interval": "30s"
+    },
+    {
+      "class": "NetworkCollector",
+      "params": [
+        "en"
+      ],
+      "table": "net",
+      "interval": "30s"
+    },
+    {
+      "class": "LoadAvgCollector",
+      "table": "load",
+      "interval": "30s"
+    },
+    {
+      "class": "DiskCollector",
+      "table": "disk",
+      "interval": "30s"
+    },
+    {
+      "class": "IOPSCollector",
+      "params": [
+        "sda"
+      ],
+      "table": "disk",
+      "interval": "30s"
+    }
+  ],
   "logger": {
     "infoLog": {
       "filename": "log/monitor.info",
