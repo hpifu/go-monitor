@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/hpifu/go-monitor/internal/reporter"
+	"github.com/hpifu/go-monitor/internal/scheduler"
 	"os"
 	"os/signal"
 	"strings"
@@ -11,7 +13,6 @@ import (
 
 	"github.com/hpifu/go-kit/logger"
 	"github.com/hpifu/go-monitor/internal/collector"
-	"github.com/hpifu/go-monitor/internal/monitor"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/viper"
 	"github.com/yosuke-furukawa/json5/encoding/json5"
@@ -62,18 +63,23 @@ func main() {
 		panic(err)
 	}
 
-	// init monitor
-	m, err := monitor.NewMonitor(
-		config.GetString("monitor.address"),
-		config.GetString("monitor.database"),
-		config.GetInt("monitor.batch"),
-		config.GetInt("monitor.retry"),
+	// init scheduler
+	s := scheduler.NewScheduler(config.GetInt("scheduler.batch"))
+	s.SetLogger(infoLog, warnLog, accessLog)
+
+	// set reporter
+	r, err := reporter.NewInfluxdbReporter(
+		config.GetString("reporter.address"),
+		config.GetString("reporter.database"),
+		config.GetInt("reporter.retry"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	m.SetLogger(infoLog, warnLog, accessLog)
 
+	s.SetReporter(r)
+
+	// add collector
 	// use json5 because viper doesn't support json array
 	var infos collectorInfos
 	fp, err = os.Open(*configfile)
@@ -86,7 +92,6 @@ func main() {
 	}
 	_ = fp.Close()
 	for _, info := range infos.Infos {
-		fmt.Println(info)
 		c, err := collector.NewCollector(info.Class, info.Params)
 		if err != nil {
 			panic(err)
@@ -95,19 +100,22 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		m.AddCollector(c, info.Table, interval)
+		s.AddCollector(c, info.Table, interval)
 	}
-	if err := m.Monitor(); err != nil {
+	infoLog.Infof("init scheduler success")
+
+	// schedule
+	if err := s.Scheduler(); err != nil {
 		panic(err)
 	}
-	infoLog.Infof("init monitor success")
+	infoLog.Infof("start scheduler success")
 
 	// graceful quit
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	infoLog.Infof("%v shutdown ...", os.Args[0])
-	m.Stop()
+	s.Stop()
 	_ = warnLog.Out.(*rotatelogs.RotateLogs).Close()
 	_ = accessLog.Out.(*rotatelogs.RotateLogs).Close()
 	infoLog.Errorf("%v shutdown success", os.Args[0])

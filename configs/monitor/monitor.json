@@ -1,8 +1,10 @@
 {
-  "monitor": {
+  "scheduler": {
+    "batch": 5
+  },
+  "reporter": {
     "address": "http://localhost:8086",
     "database": "mydb",
-    "batch": 5,
     "retry": 3
   },
   "collector": [{

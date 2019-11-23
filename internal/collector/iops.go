@@ -2,11 +2,10 @@ package collector
 
 import (
 	"fmt"
+	"github.com/mackerelio/go-osstat/disk"
 	"math"
 	"strings"
 	"time"
-
-	"github.com/mackerelio/go-osstat/disk"
 )
 
 // linux command: iostat
