@@ -34,5 +34,4 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/viper v1.5.0
-	github.com/yosuke-furukawa/json5 v0.1.1
 )

@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/hpifu/go-monitor/internal/reporter"
-	"github.com/hpifu/go-monitor/internal/scheduler"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,6 +11,8 @@ import (
 
 	"github.com/hpifu/go-kit/logger"
 	"github.com/hpifu/go-monitor/internal/collector"
+	"github.com/hpifu/go-monitor/internal/reporter"
+	"github.com/hpifu/go-monitor/internal/scheduler"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/viper"
 )
