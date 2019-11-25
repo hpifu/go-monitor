@@ -7,28 +7,50 @@
     "database": "monitor",
     "retry": 3
   },
-  "collector": [
-    {
+  "collector": {
+    "cpu": {
+      "enable": true,
       "class": "CPUCollector",
       "table": "cpu",
       "interval": "30s"
     },
-    {
+    "mem": {
+      "enable": true,
       "class": "MemoryCollector",
       "table": "mem",
       "interval": "30s"
     },
-    {
+    "net": {
+      "enable": false,
+      "class": "NetworkCollector",
+      "params": [
+        "en"
+      ],
+      "table": "net",
+      "interval": "30s"
+    },
+    "load": {
+      "enable": true,
       "class": "LoadAvgCollector",
       "table": "load",
       "interval": "30s"
     },
-    {
+    "disk": {
+      "enable": false,
       "class": "DiskCollector",
       "table": "disk",
       "interval": "30s"
+    },
+    "iops": {
+      "enable": false,
+      "class": "IOPSCollector",
+      "params": [
+        "sda"
+      ],
+      "table": "disk",
+      "interval": "30s"
     }
-  ],
+  },
   "logger": {
     "infoLog": {
       "filename": "log/monitor.info",

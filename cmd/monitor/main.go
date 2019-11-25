@@ -15,7 +15,6 @@ import (
 	"github.com/hpifu/go-monitor/internal/collector"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/viper"
-	"github.com/yosuke-furukawa/json5/encoding/json5"
 )
 
 // AppVersion name
@@ -25,12 +24,13 @@ type collectorInfo struct {
 	Class    string        `json:"class"`
 	Params   []interface{} `json:"params"`
 	Table    string        `json:"table"`
-	Interval string        `json:"interval"`
+	Interval time.Duration `json:"interval"`
+	Enable   bool          `json:"enable"`
 }
 
-type collectorInfos struct {
-	Infos []collectorInfo `json:"collector"`
-}
+//type collectorInfos struct {
+//	Infos []collectorInfo `json:"collector"`
+//}
 
 func main() {
 	version := flag.Bool("v", false, "print current version")
@@ -79,28 +79,20 @@ func main() {
 
 	s.SetReporter(r)
 
-	// add collector
-	// use json5 because viper doesn't support json array
-	var infos collectorInfos
-	fp, err = os.Open(*configfile)
-	if err != nil {
-		panic(err)
-	}
-	err = json5.NewDecoder(fp).Decode(&infos)
-	if err != nil {
-		panic(err)
-	}
-	_ = fp.Close()
-	for _, info := range infos.Infos {
+	for key := range config.Sub("collector").AllSettings() {
+		info := &collectorInfo{}
+		if err := config.Sub("collector." + key).Unmarshal(info); err != nil {
+			panic(err)
+		}
+		if !info.Enable {
+			continue
+		}
+		fmt.Println(info)
 		c, err := collector.NewCollector(info.Class, info.Params)
 		if err != nil {
 			panic(err)
 		}
-		interval, err := time.ParseDuration(info.Interval)
-		if err != nil {
-			panic(err)
-		}
-		s.AddCollector(c, info.Table, interval)
+		s.AddCollector(c, info.Table, info.Interval)
 	}
 	infoLog.Infof("init scheduler success")
 
