@@ -10,12 +10,8 @@ services:
     volumes:
       - "/var/docker/${repository}/log:/var/docker/${repository}/log"
     networks:
-      - ${repository}net
-      - influxdbnet
-
+      - online
 networks:
-  ${repository}net:
-    name: ${repository}net
-  influxdbnet:
+  online:
     external: true
-    name: influxdbnet
+    name: online
